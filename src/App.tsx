@@ -1,11 +1,13 @@
+import { Route, Routes } from 'react-router-dom'
+import { Home, Room } from './pages'
 import './App.css'
-import JoinButton from './components/JoinButton';
 
 function App() {
   return (
-    <div className='App w-screen h-screen flex items-center justify-center'>
-      <JoinButton/>
-    </div>
+    <Routes>
+      <Route path='/' element={<Home/>} />
+      <Route path='/room/:id' element={<Room/>} />
+    </Routes>
   )
 }
 
