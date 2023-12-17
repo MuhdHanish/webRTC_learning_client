@@ -1,11 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import  socketIO  from 'socket.io-client'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const WS = import.meta.env.VITE_BASE_URL;
 
+function App() {
+  useEffect(() => { socketIO(WS); }, []);
+  const [count, setCount] = useState(0);
   return (
     <>
       <div>
