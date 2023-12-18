@@ -6,11 +6,11 @@ import RoomProvider from './context/RoomContext.tsx'
 import { BrowserRouter } from 'react-router-dom'
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <BrowserRouter>
       <RoomProvider>
         <App />
       </RoomProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  // </React.StrictMode>
 );

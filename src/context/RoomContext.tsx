@@ -11,34 +11,64 @@ interface IRoomProviderProps {
   children: React.ReactNode;
 }
 
-interface ICustomPeer extends Peer {
-  _id: string;
-}
-
 interface IRoomData {
   ws: Socket;
-  myPeer?: ICustomPeer;
+  myPeer: Peer | null;
+  stream: MediaStream | null;
 }
 
-export const RoomContext = createContext<null | IRoomData>(null);
+export const RoomContext = createContext<IRoomData | null>(null);
 const ws = socketIO(WS);
 
 const RoomProvider: React.FC<IRoomProviderProps> = ({ children }) => {
-    const navigate = useNavigate();
-    const [myPeer, setMyPeer] = useState<ICustomPeer>();
-    
-    const enterRoom = useCallback(({ roomId }: { roomId: string }) => {
-      navigate(`/room/${roomId}`);
-    }, [navigate]);
-  
-    useEffect(() => {
+  const navigate = useNavigate();
+
+  const [myPeer, setMyPeer] = useState<Peer| null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  const enterRoom = useCallback(({ roomId }: { roomId: string }) => {
+    navigate(`/room/${roomId}`);
+  }, [navigate]);
+
+  const getUsers = useCallback(({ participants }: { participants: string[] }) => {
+    console.log({participants});
+  }, []);
+
+  useEffect(() => {
+    if (!myPeer) {
       const myPeerId = uuidV4();
       const peer = new Peer(myPeerId);
-      setMyPeer(peer as ICustomPeer);
+      setMyPeer(peer);
       ws.on(`room-created`, enterRoom);
-    }, [enterRoom]);
-  
-  return <RoomContext.Provider value={{ ws, myPeer }}>{children}</RoomContext.Provider>;
+      try {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then((stream)=>setStream(stream));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }, [enterRoom, myPeer]);
+ 
+  useEffect(() => {
+    ws.on(`get-users`, getUsers);
+  }, [getUsers]);
+
+  useEffect(() => {
+    if (myPeer || stream) {
+      ws.on(`user-joined`, ({ peerId }: { peerId: string }) => {
+        const call = myPeer?.call(peerId, stream as MediaStream);
+      });
+      myPeer?.on(`call`, (call) => {
+        call.answer(stream as MediaStream);
+      });
+    }
+  },[myPeer, stream])
+
+  return (
+    <RoomContext.Provider value={{ ws, myPeer, stream }}>
+      {children}
+    </RoomContext.Provider>
+  );
 };
 
 RoomProvider.propTypes = {
