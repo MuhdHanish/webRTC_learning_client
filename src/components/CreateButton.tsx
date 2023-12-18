@@ -9,7 +9,7 @@ const CreateButton: React.FC = () => {
     setLoading(true);
     socketData?.ws.emit(`create-room`);
     setLoading(false);
-  }, [socketData]);
+  }, [socketData?.ws]);
 
   return (
     <>
