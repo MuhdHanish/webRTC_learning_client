@@ -9,7 +9,7 @@ const VideoPlayer: React.FC<{ stream: MediaStream | null | undefined }> = ({ str
     }
   }, [stream]);
     return (
-        <video ref={videoRef} autoPlay />
+        <video ref={videoRef} autoPlay  />
     );
 };
 
